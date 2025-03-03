@@ -10,13 +10,29 @@ function App() {
     { id: 3, text: 'Todo 3', completed: false },
   ]);
 
+
+
+  //checkboxをクリックしたときの処理
+  const toggleTodo = (id: number) => {
+     setTodos((prevTodos) => 
+       prevTodos.map((todo) => 
+         todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
+
+
   return (
     <div>
       <h1>Todo アプリ</h1>
       <ul>
         {todos.map((todo) => (
           <li key={todo.id}>
-            <input type="checkbox" checked={todo.completed} readOnly />
+            <input 
+            type="checkbox" 
+            checked={todo.completed} 
+            onChange={() => toggleTodo(todo.id)}
+            />
             {todo.text}
           </li>
         ))}
