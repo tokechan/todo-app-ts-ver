@@ -1,18 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Todo } from './types'
 
 function App() {
 
-  //Todoリストの状態を管理
-  const [todos, setTodos] = useState<Todo[]>([
-    { id: 1, text: 'Todo 1', completed: false },
-    { id: 2, text: 'Todo 2', completed: true },
-    { id: 3, text: 'Todo 3', completed: false },
-  ]);
+  //ローカルストレージからデータを取得
+  const loadTodos = (): Todo[] => {
+    const storedTodos = localStorage.getItem("todos");
+    return storedTodos ? JSON.parse(storedTodos) : [];
+  };
+  //Todoリストの状態を管理（初期値はローカルストレージのデータ）
+  const [todos, setTodos] = useState<Todo[]>(loadTodos());
 
-  //Inputの状態を管理
+  //Todoリストの状態を管理する
   const [newTodo, setNewTodo] = useState<string>("");
 
+  //todosが変更されるたびにローカルストレージに保存する
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
 
   //checkboxをクリックしたときの処理
   const toggleTodo = (id: number) => {
