@@ -38,12 +38,18 @@ function App() {
   };
 
 
+  //Todoを削除する処理
+  const deleteTodo = (id: number) => {
+    setTodos((prevTodos) => prevTodos.filter((todo)  => todo.id !== id));
+  };
+
+
 
   return (
     <div>
       <h1>Todo アプリ</h1>
 
-      {/* Todoリストの表示 */}
+      {/* 入力フィールドと追加ボタン */}
       <div>
         <input
           type="text"
@@ -64,6 +70,8 @@ function App() {
             onChange={() => toggleTodo(todo.id)}
             />
             {todo.text}
+            {/* 削除ボタン */}
+            <button onClick={() => deleteTodo(todo.id)}>🗑️ </button>
           </li>
         ))}
       </ul>
