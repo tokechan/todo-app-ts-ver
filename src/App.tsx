@@ -14,6 +14,10 @@ function App() {
   //Todoリストの状態を管理する
   const [newTodo, setNewTodo] = useState<string>("");
 
+  //編集モードの管理(編集中のTodoのid＆入力値）
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState<string>("");
+
   //todosが変更されるたびにローカルストレージに保存する
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos));
@@ -42,13 +46,28 @@ function App() {
     setNewTodo(""); //入力欄を空にする
   };
 
-
   //Todoを削除する処理
   const deleteTodo = (id: number) => {
     setTodos((prevTodos) => prevTodos.filter((todo)  => todo.id !== id));
   };
 
 
+  //Todoを編集する処理
+  const startEditing = (id: number, text: string) => {
+    setEditingId(id);
+    setEditText(text);
+  };
+
+  //編集内容を保存する
+  const saveEdit = (id: number) => {
+    setTodos((prevTodos) =>
+      prevTodos.map((todo) => 
+        todo.id === id ? { ...todo, text: editText } : todo
+      )
+    );
+    setEditingId(null);//編集モードを解除
+    setEditText("");//入力フィールドを空にする
+  };
 
   return (
     <div>
@@ -74,7 +93,23 @@ function App() {
             checked={todo.completed} 
             onChange={() => toggleTodo(todo.id)}
             />
-            {todo.text}
+
+            {/* 編集ボタン */}
+            {editingId === todo.id ? (
+              <>
+                <input 
+                type="text"
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                />
+                <button onClick={() => saveEdit(todo.id)}>Save</button>
+              </>
+            ) : (
+              <>
+                {todo.text}
+                <button onClick={() => startEditing(todo.id, todo.text)}>✏️Edit</button>
+              </>
+            )}
             {/* 削除ボタン */}
             <button onClick={() => deleteTodo(todo.id)}>🗑️ </button>
           </li>
