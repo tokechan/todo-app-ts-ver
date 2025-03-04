@@ -10,6 +10,8 @@ function App() {
     { id: 3, text: 'Todo 3', completed: false },
   ]);
 
+  //Inputの状態を管理
+  const [newTodo, setNewTodo] = useState<string>("");
 
 
   //checkboxをクリックしたときの処理
@@ -21,11 +23,39 @@ function App() {
     );
   };
 
+  //Todoを追加する処理
+  const addTodo = () => {
+    if (newTodo.trim() === "") return;//空文字の場合はreturn
+
+    const newTask: Todo = {
+      id: Date.now(), //idは現在時刻
+      text: newTodo,
+      completed: false
+    };
+    
+    setTodos((prevTodos) => [...prevTodos, newTask]);
+    setNewTodo(""); //入力欄を空にする
+  };
+
+
 
   return (
     <div>
       <h1>Todo アプリ</h1>
-      <ul>
+
+      {/* Todoリストの表示 */}
+      <div>
+        <input
+          type="text"
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+          placeholder="Enter a new task"
+        />
+        <button onClick={addTodo}>Add </button>
+      </div>
+
+      {/* Todoリストの表示 */}
+      <ul>  
         {todos.map((todo) => (
           <li key={todo.id}>
             <input 
