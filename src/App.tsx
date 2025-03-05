@@ -175,7 +175,7 @@ function App() {
 
   //編集内容を保存する
   const saveEdit = (id: number) => {
-    try {
+    if(editText.trim() === "") return; //空文字の場合はreturn
       setTodos((prevTodos) =>
         prevTodos.map((todo) => 
           todo.id === id ? { ...todo, text: editText.trim() || todo.text } : todo
@@ -183,12 +183,15 @@ function App() {
       );
       setEditingId(null);
       setEditText("");
-    } catch (error) {
-      console.error('Error saving edit:', error);
-    }
-  };
+    };
 
-
+    //Enterキーを押したときの処理
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, action: () => void) => {
+      if (e.key === "Enter") {
+        e.preventDefault(); // フォーム送信を防ぐ
+        action();
+      }
+    };
 
   return (
     <Container>
@@ -200,6 +203,7 @@ function App() {
           type="text"
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
+          onKeyDown={(e) => handleKeyDown(e, addTodo)}
           placeholder="新しいTodoを入力"
         />
         <AddButton onClick={addTodo}>追加</AddButton>
@@ -221,17 +225,9 @@ function App() {
                 <EditInput 
                   type="text"
                   value={editText}
-                  onChange={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setEditText(e.target.value);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      saveEdit(todo.id);
-                    }
-                  }}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(e, () => saveEdit(todo.id))} //Enterキー対応
+                  autoFocus //入力欄に自動フォーカス
                 />
                 <ActionButton onClick={() => saveEdit(todo.id)}>✅</ActionButton>
               </>
