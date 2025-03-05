@@ -112,6 +112,28 @@ const ActionButton = styled.button`
   }
 `;
 
+const FilterContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+`;
+
+const FilterButton = styled.button<{ isActive: boolean }>`
+  padding: 8px 16px;
+  border: 2px solid #3498db;
+  border-radius: 4px;
+  background-color: ${props => props.isActive ? '#3498db' : 'transparent'};
+  color: ${props => props.isActive ? 'white' : '#3498db'};
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: ${props => props.isActive ? '#2980b9' : '#edf2f7'};
+  }
+`;
+
 function App() {
 
   //ローカルストレージからデータを取得
@@ -128,6 +150,9 @@ function App() {
   //編集モードの管理(編集中のTodoのid＆入力値）
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editText, setEditText] = useState<string>("");
+
+  //フィルタリングの状態を管理
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "completed">("all");
 
   //todosが変更されるたびにローカルストレージに保存する
   useEffect(() => {
@@ -193,6 +218,13 @@ function App() {
       }
     };
 
+    //フィルタリングの処理
+    const filterdTodos = todos.filter((todo) =>{
+      if (filterStatus === "active") return !todo.completed;//未完了のみ
+      if (filterStatus === "completed") return todo.completed;//完了のみ
+      return todo; // それ以外はそのまま返す
+    })
+
   return (
     <Container>
       <Title>Todo アプリ</Title>
@@ -209,9 +241,31 @@ function App() {
         <AddButton onClick={addTodo}>追加</AddButton>
       </InputContainer>
 
+      {/* フィルタリングボタン */}
+      <FilterContainer>
+        <FilterButton 
+          isActive={filterStatus === "all"}
+          onClick={() => setFilterStatus("all")}
+        >
+          すべて
+        </FilterButton>
+        <FilterButton 
+          isActive={filterStatus === "active"}
+          onClick={() => setFilterStatus("active")}
+        >
+          未完了
+        </FilterButton>
+        <FilterButton 
+          isActive={filterStatus === "completed"}
+          onClick={() => setFilterStatus("completed")}
+        >
+          完了
+        </FilterButton>
+      </FilterContainer>
+
       {/* Todoリストの表示 */}
       <TodoList>
-        {todos.map((todo) => (
+        {filterdTodos.map((todo) => (
           <TodoItem key={todo.id}>
             <TodoCheckbox 
               type="checkbox" 
