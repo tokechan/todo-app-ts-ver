@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { Todo, FilterStatus } from '../types/todo';
+import { useAuth } from './AuthContext';
 
 // 状態の型定義
 interface TodoState {
@@ -34,6 +35,9 @@ const initialState: TodoState = {
   filterStatus: 'all',
   filteredTodos: []
 };
+
+// ローカルストレージのキーを生成する関数
+const getStorageKey = (userId: string) => `todos_${userId}`;
 
 // Reducer関数
 const todoReducer = (state: TodoState, action: TodoAction): TodoState => {
@@ -117,26 +121,37 @@ const TodoContext = createContext<TodoContextType | undefined>(undefined);
 // プロバイダーコンポーネント
 export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(todoReducer, initialState);
+  const { state: authState } = useAuth();
+  const userId = authState.user?.id;
   
   // ローカルストレージからデータを取得
   useEffect(() => {
     try {
-      const storedTodos = localStorage.getItem('todos');
-      if (storedTodos) {
-        const parsedTodos = JSON.parse(storedTodos);
-        if (Array.isArray(parsedTodos)) {
-          dispatch({ type: 'LOAD_TODOS', payload: parsedTodos });
+      if (userId) {
+        const storageKey = getStorageKey(userId);
+        const storedTodos = localStorage.getItem(storageKey);
+        if (storedTodos) {
+          const parsedTodos = JSON.parse(storedTodos);
+          if (Array.isArray(parsedTodos)) {
+            dispatch({ type: 'LOAD_TODOS', payload: parsedTodos });
+          }
+        } else {
+          // ユーザーのTodoがない場合は空の配列をセット
+          dispatch({ type: 'LOAD_TODOS', payload: [] });
         }
       }
     } catch (error) {
       console.error('Error loading todos:', error);
     }
-  }, []);
+  }, [userId]); // ユーザーIDが変わったら再読み込み
   
   // todosが変更されるたびにローカルストレージに保存
   useEffect(() => {
-    localStorage.setItem('todos', JSON.stringify(state.todos));
-  }, [state.todos]);
+    if (userId && state.todos.length >= 0) {
+      const storageKey = getStorageKey(userId);
+      localStorage.setItem(storageKey, JSON.stringify(state.todos));
+    }
+  }, [state.todos, userId]);
   
   // アクション関数
   const addTodo = (text: string) => {
