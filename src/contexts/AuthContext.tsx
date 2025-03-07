@@ -21,14 +21,21 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       };
     case 'LOGIN_SUCCESS':
     case 'REGISTER_SUCCESS':
-      localStorage.setItem('user', JSON.stringify(action.payload));
-      return {
+      // ユーザー情報をローカルストレージに保存
+      const userStr = JSON.stringify(action.payload);
+      localStorage.setItem('user', userStr);
+      console.log('ローカルストレージに保存しました:', userStr);
+      
+      // 新しい状態を返す
+      const newState = {
         ...state,
         user: action.payload,
         isAuthenticated: true,
         loading: false,
         error: null,
       };
+      console.log('新しい認証状態:', newState);
+      return newState;
     case 'LOGIN_FAILURE':
     case 'REGISTER_FAILURE':
       localStorage.removeItem('user');
@@ -81,22 +88,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // ローディング状態をセット
         console.log('ローカルストレージからユーザー情報を読み込み中...');
         
-        // ローカルストレージをクリアしてログアウト状態にする
-        localStorage.removeItem('user');
-        dispatch({ type: 'LOGOUT' });
-        
-        // 以下のコードはデバッグ用にコメントアウト
-        /*
+        // ローカルストレージからユーザー情報を取得
         const user = localStorage.getItem('user');
         if (user) {
-          const parsedUser = JSON.parse(user);
-          console.log('ユーザー情報を読み込みました:', parsedUser);
-          dispatch({ type: 'LOGIN_SUCCESS', payload: parsedUser });
+          try {
+            const parsedUser = JSON.parse(user);
+            console.log('ユーザー情報を読み込みました:', parsedUser);
+            dispatch({ type: 'LOGIN_SUCCESS', payload: parsedUser });
+          } catch (parseError) {
+            console.error('ユーザー情報の解析エラー:', parseError);
+            localStorage.removeItem('user');
+            dispatch({ type: 'LOGOUT' });
+          }
         } else {
           console.log('ユーザー情報が見つかりません。ログアウト状態に設定します。');
           dispatch({ type: 'LOGOUT' });
         }
-        */
       } catch (error) {
         console.error('ユーザー情報の読み込みエラー:', error);
         dispatch({ type: 'LOGOUT' });
@@ -128,14 +135,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // ログイン成功
         console.log('ログイン成功:', user);
         
-        // ユーザー情報をローカルストレージに保存
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        // リダイレクトの前にディスパッチ
-        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-        console.log('ログイン成功後の状態:', { user, isAuthenticated: true });
-        
-        return true;
+        try {
+          // ユーザー情報をローカルストレージに保存
+          const userStr = JSON.stringify(user);
+          localStorage.setItem('user', userStr);
+          console.log('ローカルストレージに保存しました:', userStr);
+          
+          // リダイレクトの前にディスパッチ
+          dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+          
+          // 状態を確認
+          setTimeout(() => {
+            const currentUser = localStorage.getItem('user');
+            console.log('ログイン確認 - ローカルストレージのユーザー:', currentUser);
+          }, 100);
+          
+          return true;
+        } catch (storageError) {
+          console.error('ローカルストレージ保存エラー:', storageError);
+          dispatch({ type: 'LOGIN_FAILURE', payload: 'ログイン状態の保存に失敗しました' });
+          return false;
+        }
       } else {
         console.log('ログイン失敗: 認証情報が一致しません');
         dispatch({ type: 'LOGIN_FAILURE', payload: 'メールアドレスまたはパスワードが正しくありません' });

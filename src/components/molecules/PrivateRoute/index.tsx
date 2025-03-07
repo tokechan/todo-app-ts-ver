@@ -20,21 +20,35 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const { state } = useAuth();
   
   useEffect(() => {
-    console.log('認証状態:', state);
+    console.log('PrivateRoute: 認証状態変更:', state);
+    console.log('PrivateRoute: ユーザー情報:', state.user);
+    console.log('PrivateRoute: 認証済み:', state.isAuthenticated);
+    
+    // ローカルストレージの確認
+    const storedUser = localStorage.getItem('user');
+    console.log('PrivateRoute: ローカルストレージのユーザー:', storedUser);
   }, [state]);
   
   // ローディング中は読み込み中の表示
   if (state.loading) {
+    console.log('PrivateRoute: ローディング中...');
     return <LoadingContainer>読み込み中...</LoadingContainer>;
   }
   
+  // ローカルストレージの確認
+  const storedUser = localStorage.getItem('user');
+  const isUserInStorage = !!storedUser;
+  
+  // 認証状態の確認
+  const isAuthenticated = state.isAuthenticated || isUserInStorage;
+  
   // 認証されていない場合はログインページにリダイレクト
-  if (!state.isAuthenticated || !state.user) {
-    console.log('認証されていません。リダイレクトします。');
+  if (!isAuthenticated) {
+    console.log('PrivateRoute: 認証されていません。リダイレクトします。');
     return <Navigate to="/auth" replace />;
   }
   
   // 認証されている場合は子コンポーネントを表示
-  console.log('認証済み。コンテンツを表示します。');
+  console.log('PrivateRoute: 認証済み。コンテンツを表示します。');
   return <>{children}</>;
 };

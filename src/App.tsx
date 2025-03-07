@@ -19,9 +19,9 @@ const AppContainer = styled.div`
 
 function App() {
   return (
-    <AuthProvider>
-      <TodoProvider>
-        <Router>
+    <Router>
+      <AuthProvider>
+        <TodoProvider>
           <AppContainer>
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
@@ -33,9 +33,9 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AppContainer>
-        </Router>
-      </TodoProvider>
-    </AuthProvider>
+        </TodoProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
