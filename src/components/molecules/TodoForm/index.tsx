@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { TodoInput, TodoInputProps } from '../../atoms/Input/TodoInput';
+import { TodoInput } from '../../atoms/Input/TodoInput';
 import { ActionButton } from '../../atoms/Button/ActionButton';
 
 // TodoFormの型定義

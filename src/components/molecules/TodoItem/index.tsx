@@ -46,7 +46,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   onDelete,
 }) => {
   return (
-    <TodoItemContainer>
+    <TodoItemContainer data-id={id}>
       <TodoCheckbox
         type="checkbox"
         checked={completed}

@@ -1,14 +1,12 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { FilterButton } from '../../atoms/Button/FilterButton';
-
-// フィルタータイプの定義
-export type FilterType = 'all' | 'active' | 'completed';
+import { FilterStatus } from '../../../types/todo';
 
 // FilterButtonsの型定義
 export interface FilterButtonsProps {
-  currentFilter: FilterType;
-  onFilterChange: (filter: FilterType) => void;
+  currentFilter: FilterStatus;
+  onFilterChange: (filter: FilterStatus) => void;
 }
 
 // スタイル付きのコンテナコンポーネント
