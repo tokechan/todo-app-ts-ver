@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 // スタイル付きコンポーネント
 const FormContainer = styled.div`
@@ -93,6 +94,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { state, login, clearError } = useAuth();
+  const navigate = useNavigate();
 
   // フォームの入力値が変更されたらエラーをクリア
   useEffect(() => {
@@ -100,18 +102,35 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
       clearError();
     }
   }, [email, password]);
+  
+  // 認証状態が変更されたときの処理
+  useEffect(() => {
+    console.log('ログインフォーム: 認証状態変更', state);
+    
+    // 認証済みの場合はホームページにリダイレクト
+    if (state.isAuthenticated && state.user) {
+      console.log('認証済み、ホームページにリダイレクトします');
+      navigate('/');
+    }
+  }, [state.isAuthenticated, state.user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('ログインボタンがクリックされました');
     
     try {
+      // デバッグ用にローカルストレージをクリア
+      localStorage.removeItem('user');
+      console.log('ログイン前のローカルストレージをクリアしました');
+      
       const success = await login(email, password);
       console.log('ログイン結果:', success ? '成功' : '失敗');
       
       if (success) {
-        console.log('ログイン成功、ホームページにリダイレクトします');
-        // ログイン成功時の処理は、AuthContextのリダイレクトに任せる
+        console.log('ログイン成功、状態確認:', state);
+        console.log('ローカルストレージ確認:', localStorage.getItem('user'));
+        
+        // リダイレクトは useEffect で処理されるので、ここでは何もしない
       }
     } catch (error) {
       console.error('ログイン中にエラーが発生しました:', error);
