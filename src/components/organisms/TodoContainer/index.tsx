@@ -84,6 +84,7 @@ export const TodoContainer: React.FC = () => {
     addTodo,
     toggleTodo,
     deleteTodo,
+    updateTodo,
     filterStatus,
     setFilterStatus,
   } = useTodoContext();
@@ -162,6 +163,7 @@ export const TodoContainer: React.FC = () => {
         todos={todos}
         onToggleTodo={toggleTodo}
         onDeleteTodo={deleteTodo}
+        onUpdateTodo={updateTodo}
       />
       <TodoCount>
         {activeTodosCount === 0
