@@ -8,6 +8,7 @@ export interface TodoListProps {
   todos: Todo[];
   onToggleTodo: (id: number) => void;
   onDeleteTodo: (id: number) => void;
+  onUpdateTodo: (id: number, text: string) => void;
 }
 
 // スタイル付きのコンテナコンポーネント
@@ -31,6 +32,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   todos,
   onToggleTodo,
   onDeleteTodo,
+  onUpdateTodo,
 }) => {
   // Todoリストが空の場合
   if (todos.length === 0) {
@@ -42,11 +44,12 @@ export const TodoList: React.FC<TodoListProps> = ({
       {todos.map((todo) => (
         <TodoItem
           key={todo.id}
-          id={String(todo.id)}
+          id={todo.id}
           text={todo.text}
           completed={todo.completed}
           onToggle={() => onToggleTodo(todo.id)}
           onDelete={() => onDeleteTodo(todo.id)}
+          onEdit={(text) => onUpdateTodo(todo.id, text)}
         />
       ))}
     </TodoListContainer>
